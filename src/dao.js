@@ -33,11 +33,11 @@ class AppDAO {
     constructor(dbFilePath) {
         this.db = new sqlite3.Database(dbFilePath, (err) => {
             if (err) {
-                console.log('Echec de la connexion a la base de donn�es', err)
+                console.log('Echec de la connexion a la base de donne\u0301es', err)
                 console.log(err);
 
             } else {
-                console.log('Connect� a la base de donn�es')
+                console.log('Connecte\u0301 a la base de donne\u0301es')
             }
         })
     }
@@ -51,7 +51,7 @@ class AppDAO {
                     if (err) {
                         reject(err.message);
                     } else {
-                        resolve('Le Patient a �t� ajout� avec succ�s');
+                        resolve('Le Patient a e\u0301te\u0301 ajoute\u0301 avec succe\u0300s');
                         return 'Patient';
                     }
                 });
@@ -64,7 +64,7 @@ class AppDAO {
                     if (err) {
                         reject(err.message);
                     } else {
-                        resolve('Le RDV a �t� ajout� avec succ�s');
+                        resolve('Le RDV a e\u0301te\u0301 ajoute\u0301 avec succe\u0300s');
                         return 'Rendez-vous';
                     }
                 });
@@ -81,7 +81,7 @@ class AppDAO {
                     if (err) {
                         reject(err.message);
                     } else {
-                        resolve('Le Patient a �t� modifi� avec succ�s');
+                        resolve('Le Patient a e\u0301te\u0301 modifie\u0301 avec succe\u0300s');
                     }
                 });
             });
@@ -94,7 +94,7 @@ class AppDAO {
                     if (err) {
                         reject(err.message);
                     } else {
-                        resolve('Le RDV a �t� modifi� avec succ�s');
+                        resolve('Le RDV a e\u0301te\u0301 modifie\u0301 avec succe\u0300s');
                     }
                 });
             });
@@ -110,7 +110,7 @@ class AppDAO {
                 if (err) {
                     reject(err.message);
                 } else {
-                    resolve('Le rendez-vous a �t� supprim� avec succ�s');
+                    resolve('Le rendez-vous a e\u0301te\u0301 supprime\u0301 avec succe\u0300s');
                 }
             });
         });
@@ -149,6 +149,48 @@ class AppDAO {
                 } else {
 
                     resolve(new Patient(res.Nom, res.Prenom, res.Addresse, res.Tel, res.Mail, res.Infomed, res.ID));
+                }
+
+            });
+        });
+
+    }
+
+    getPatientByNom(Nom) { //Returns a list of patient instances.
+        const sql = "SELECT * FROM Patient WHERE Nom = ?";
+        return new Promise((resolve, reject) => {
+            this.db.all(sql, [Nom], (err, rows) => {
+
+                if (err) {
+                    reject(err.message);
+                } else {
+                    let listpatient = [];
+                    rows.forEach(e => {
+                        listpatient.push(new Patient(res.Nom, res.Prenom, res.Addresse, res.Tel, res.Mail, res.Infomed, res.ID));
+                    });
+
+                    resolve(listpatient);
+                }
+
+            });
+        });
+
+    }
+
+    getPatientByPrenom(Prenom) { //Returns a list of patient instances.
+        const sql = "SELECT * FROM Patient WHERE Prenom = ?";
+        return new Promise((resolve, reject) => {
+            this.db.all(sql, [Prenom], (err, rows) => {
+
+                if (err) {
+                    reject(err.message);
+                } else {
+                    let listpatient = [];
+                    rows.forEach(e => {
+                        listpatient.push(new Patient(res.Nom, res.Prenom, res.Addresse, res.Tel, res.Mail, res.Infomed, res.ID));
+                    });
+
+                    resolve(listpatient);
                 }
 
             });
@@ -224,6 +266,22 @@ class AppDAO {
         });
     }
 
+    getRdvInfoByID(ID) {
+        const sql = 'SELECT DateHeure,Objet,Nom,Prenom FROM RENDEZVS AS r JOIN Patient as p ON r.ID = p.ID WHERE r.ID = ?';
+        return new Promise((resolve, reject) => {
+            this.db.get(sql, [ID], (err, result) => {
+
+                if (err) {
+                    reject(err.message);
+                } else {
+
+                    resolve(result);
+                }
+
+            });
+        });
+    }
+
     closeConnec() {
         console.log("trying to close the connection");
 
@@ -238,20 +296,50 @@ class AppDAO {
 
 }
 
+class Imprimante {
+    constructor(dbInstance) {
+        this.db = dbInstance; 
+    }
+
+    imprimer(path,rdvID) {
+
+        db.getRdvInfoByID(rdvID).then(e => {
+            let dateHeure = e.DateHeure.split(' ')
+            let text =`***************Cabinet Medical Echifaa***************
+            \rRendez-Vous :
+
+            \rLe : ${dateHeure[0]} a\u0300 ${dateHeure[1]}
+
+            \rNom et pre\u0301nom du concerne\u0301 : ${e.Nom} ${e.Prenom}
+
+            \rObjet : ${e.Objet}
+            
+            \r***************Veuillez respecter les heures SVP******
+            `;
+            fs.writeFile(path, text, e => {
+                if (e) {
+                    return "Erreur lors de l'impression du Rendez-Vous"
+                }
+            });
+            
+        });
+    }
+}
+
 
 module.exports = {
     Patient,
     RENDEZVS,
-    AppDAO
+    AppDAO,
+    Imprimante
 }
 
-// let db = new AppDAO("./rdv.db");
-// let res;
-// res = db.getRdvAujourd().then(e => {
-//     console.log(e);
-// }); // Use it like this ,the e changes from function to function ,it can be a msg or a list of objects
-// console.log(res);
-// db.closeConnec();
+
+//let db = new AppDAO("./db/rdv.db");
+//let imp = new Imprimante(db);
+//imp.imprimer('rdv.txt',2);
+//db.closeConnec();
+
 
 
 //Press any key to exit logic
