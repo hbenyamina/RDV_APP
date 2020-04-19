@@ -1,16 +1,21 @@
 <template>
   <v-app>
-    <v-app-bar app  dark>
+    <v-app-bar app dark>
       <div class="d-flex align-center">
         <h1 class="d1">RDVApp</h1>
       </div>
 
       <v-spacer></v-spacer>
     </v-app-bar>
-    <navigationDrawer v-bind:items="items" @selectView="printView($event)"></navigationDrawer>
+    <navigationDrawer v-bind:items="tabs" @selectView="printView($event)"></navigationDrawer>
     <v-content>
       <keep-alive>
-        <component :is="currentView" :data="Patients" :headers="headers" @accessStorage="accessStorage($event)" />
+        <component
+          :is="currentView"
+          :data="Patients"
+          :headers="headers"
+          @accessStorage="accessStorage($event)"
+        />
       </keep-alive>
       <snackbar
         @updatesnackbar="updatesnackbar($event)"
@@ -46,15 +51,16 @@ export default {
   },
 
   data: () => ({
-    items: [
+    tabs: [
       {
         title: "Dashboard",
         icon: "mdi-view-dashboard",
-        view: "Dashboard"
+        view: "Dashboard",
+        fetch: true
       },
       {
         title: "add an appointment",
-        icon: "mdi-more",
+        icon: "mdi-plus",
         view: "addRDV"
       },
       {
@@ -80,28 +86,35 @@ export default {
   methods: {
     printView: function(tab) {
       this.currentView = tab.view;
+      if(tab.fetch) this.globalSync();
     },
-    updatesnackbar: function(text) {
+    updatesnackbar: function(value,text) {
+      this.snackbar = value;
       this.snackbarText = text;
-      this.snackbar = true;
-      return this.snackbar;
+      return true;
     },
     fetchObjectsById() {
       return false;
     },
+    globalSync() {
+      db.getAllPatients().then(function(a) {
+        global.App.updatesnackbar(true,"Data Fetched Successfully!!");
+        global.App.Patients = [];
+        a.forEach(element => {
+          global.App.Patients.push(element);
+        });
+      });
+    },
     accessStorage(event) {
       switch (event.type) {
         case "add":
-          console.log("add event", event);
           event.data.forEach(element => {
             db.insert(element).then(function name(e) {
               {
-                //console.log("addedd successfully");
-                console.log(global.App.updatesnackbar('Added successfully'));
+                global.App.updatesnackbar(true,"Added successfully");
               }
             });
           });
-          
 
           break;
         case "search":
@@ -114,19 +127,9 @@ export default {
     }
   },
   mounted: function() {
-    db = new AppDAO("./rdv.db");
-    db.getRdvAujourd().then(e => {
-    console.log(e);
-});
+    db = new AppDAO("./src/rdv.db");
     global.App = this;
-    db.getAllPatients().then(function(a) {
-            global.App.updatesnackbar("Data Fetched Successfully!!");
-            console.log(a);
-            
-            a.forEach(element => {
-              global.App.Patients.push(element);
-            });
-          });
+    this.globalSync();
   },
   beforeDestroy: function() {
     db.closeConnec();

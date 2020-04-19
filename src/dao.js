@@ -75,7 +75,7 @@ class AppDAO {
             const sql = 'UPDATE Patient SET Nom = ?,Prenom = ?,Addresse = ?,Tel = ?,Mail = ?,Infomed = ? WHERE ID = ?';
 
             return new Promise((resolve, reject) => {
-                this.db.run(sql, [element.Nom, element.Prenom, element.Addresse, element.Tel, element.Mail, element.InfoMed, element.ID], (err) => {
+                this.db.run(sql, [element.Nom, element.Prenom, element.Addresse, element.Tel, element.Mail, element.Infomed, element.ID], (err) => {
                     if (err) {
                         reject(err.message);
                     } else {
@@ -126,7 +126,7 @@ class AppDAO {
                 } else {
                     let listpatient = [];
                     rows.forEach(e => {
-                        listpatient.push(new Patient(e.NOM, e.PRENOM, e.ADDRESSE, e.TEL, e.MAIL, e.INFOMED, e.ID));
+                        listpatient.push(new Patient(e.Nom, e.Prenom, e.Addresse, e.Tel, e.Mail, e.Infomed, e.ID));
                     });
 
                     resolve(listpatient);
@@ -155,7 +155,7 @@ class AppDAO {
     }
 
     getRdvPatient(ID) { //Returns a list of rendezvs instances for a specific patient.
-        const sql = "SELECT * FROM RENDEZVS WHERE IDPAT = ?";
+        const sql = "SELECT * FROM Rendez WHERE IDPAT = ?";
         return new Promise((resolve, reject) => {
             this.db.all(sql, [ID], (err, rows) => {
 
@@ -202,7 +202,7 @@ class AppDAO {
         let today = new Date();
         let date = today.getDate() + '-' + (today.getMonth() + 1).toString().padStart(2, "0") + '-' + today.getFullYear() + '%';
         console.log(date);
-        const sql = 'SELECT * FROM RENDEZVS WHERE DateHeure LIKE ?';
+        const sql = 'SELECT * FROM RendezVS WHERE DateHeure LIKE ?';
         return new Promise((resolve, reject) => {
             this.db.all(sql, [date], (err, rows) => {
 
@@ -223,8 +223,6 @@ class AppDAO {
     }
 
     closeConnec() {
-        console.log("trying to close the connection");
-
         this.db.close((err) => {
             if (err) {
                 console.error(err.message);
@@ -245,7 +243,7 @@ module.exports = {
 
 // let db = new AppDAO("./rdv.db");
 // let res;
-// res = db.getRdvAujourd().then(e => {
+// res = db.getAllPatients().then(e => {
 //     console.log(e);
 // }); // Use it like this ,the e changes from function to function ,it can be a msg or a list of objects
 // console.log(res);
@@ -253,6 +251,6 @@ module.exports = {
 
 
 //Press any key to exit logic
-//process.stdin.setRawMode(true);
-//process.stdin.resume();
-//process.stdin.on('data', process.exit.bind(process, 0));
+// process.stdin.setRawMode(true);
+// process.stdin.resume();
+// process.stdin.on('data', process.exit.bind(process, 0));
