@@ -33,15 +33,17 @@ class AppDAO {
     constructor(dbFilePath) {
         this.db = new sqlite3.Database(dbFilePath, (err) => {
             if (err) {
-                console.log('Echec de la connexion a la base de données', err)
+                console.log('Echec de la connexion a la base de donnï¿½es', err)
+                console.log(err);
+
             } else {
-                console.log('Connecté a la base de données')
+                console.log('Connectï¿½ a la base de donnï¿½es')
             }
         })
     }
 
     insert(element) {
-       
+
         if (element instanceof Patient) {
             const sql = 'INSERT INTO PATIENT(Nom,Prenom,Addresse,Tel,Mail,Infomed) VALUES(?,?,?,?,?,?);';
             return new Promise((resolve, reject) => {
@@ -49,7 +51,7 @@ class AppDAO {
                     if (err) {
                         reject(err.message);
                     } else {
-                        resolve('Le Patient a été ajouté avec succès');
+                        resolve('Le Patient a ï¿½tï¿½ ajoutï¿½ avec succï¿½s');
                     }
                 });
             });
@@ -61,7 +63,7 @@ class AppDAO {
                     if (err) {
                         reject(err.message);
                     } else {
-                        resolve('Le RDV a été ajouté avec succès');
+                        resolve('Le RDV a ï¿½tï¿½ ajoutï¿½ avec succï¿½s');
                     }
                 });
             });
@@ -77,7 +79,7 @@ class AppDAO {
                     if (err) {
                         reject(err.message);
                     } else {
-                        resolve('Le Patient a été modifié avec succès');
+                        resolve('Le Patient a ï¿½tï¿½ modifiï¿½ avec succï¿½s');
                     }
                 });
             });
@@ -90,7 +92,7 @@ class AppDAO {
                     if (err) {
                         reject(err.message);
                     } else {
-                        resolve('Le RDV a été modifié avec succès');
+                        resolve('Le RDV a ï¿½tï¿½ modifiï¿½ avec succï¿½s');
                     }
                 });
             });
@@ -98,18 +100,18 @@ class AppDAO {
     }
 
     delete(ID) { // The function only removes Rendez-Vous
-        
-            return new Promise((resolve, reject) => {
-                const sql = 'DELETE FROM RendezVS WHERE ID= ?';
 
-                this.db.run(sql, [ID], (err) => {
-                    if (err) {
-                        reject(err.message);
-                    } else {
-                        resolve('Le rendez-vous a été supprimé avec succès');
-                    }
-                });
-            });  
+        return new Promise((resolve, reject) => {
+            const sql = 'DELETE FROM RendezVS WHERE ID= ?';
+
+            this.db.run(sql, [ID], (err) => {
+                if (err) {
+                    reject(err.message);
+                } else {
+                    resolve('Le rendez-vous a ï¿½tï¿½ supprimï¿½ avec succï¿½s');
+                }
+            });
+        });
     }
 
 
@@ -117,7 +119,7 @@ class AppDAO {
     getAllPatients() { //Returns a list of patient instances.
         const sql = "SELECT * FROM Patient";
         return new Promise((resolve, reject) => {
-            this.db.all(sql, [],(err, rows) => {
+            this.db.all(sql, [], (err, rows) => {
 
                 if (err) {
                     reject(err.message);
@@ -132,7 +134,7 @@ class AppDAO {
 
             });
         });
-       
+
     }
 
     getPatientByID(ID) { //Returns a patient from id;
@@ -198,7 +200,7 @@ class AppDAO {
 
     getRdvAujourd() { // Returns the rendez-vous of today
         let today = new Date();
-        let date = today.getDate() + '-' + (today.getMonth() + 1).toString().padStart(2,"0") + '-' + today.getFullYear() + '%';
+        let date = today.getDate() + '-' + (today.getMonth() + 1).toString().padStart(2, "0") + '-' + today.getFullYear() + '%';
         console.log(date);
         const sql = 'SELECT * FROM RENDEZVS WHERE DateHeure LIKE ?';
         return new Promise((resolve, reject) => {
@@ -225,7 +227,7 @@ class AppDAO {
             if (err) {
                 console.error(err.message);
             }
-            console.log('Connexion a la base de données fermée.');
+            console.log('Connexion a la base de donnï¿½es fermï¿½e.');
         });
     }
 
@@ -233,14 +235,20 @@ class AppDAO {
 }
 
 
+module.exports = {
+    Patient,
+    RENDEZVS,
+    AppDAO
+}
 
-let db = new AppDAO("./db/rdv.db");
-let res;
-res = db.getRdvAujourd().then(e => { return e; }); // Use it like this ,the e changes from function to function ,it can be a msg or a list of objects
-console.log(res);
-db.closeConnec();
+// let db = new AppDAO("./rdv.db");
+// let res;
+// res = db.getRdvAujourd().then(e => { return e; }); // Use it like this ,the e changes from function to function ,it can be a msg or a list of objects
+// console.log(res);
+// db.closeConnec();
+
 
 //Press any key to exit logic
-process.stdin.setRawMode(true);
-process.stdin.resume();
-process.stdin.on('data', process.exit.bind(process, 0));
+//process.stdin.setRawMode(true);
+//process.stdin.resume();
+//process.stdin.on('data', process.exit.bind(process, 0));

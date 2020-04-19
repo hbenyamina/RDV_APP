@@ -40,7 +40,7 @@
         ],
         data() {
             return {
-                minivariant: true,
+                minivariant: false,
                 right: null
             }
         },

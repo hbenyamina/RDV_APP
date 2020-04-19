@@ -1,105 +1,130 @@
 <template>
   <v-app>
-    <v-app-bar app color="primary" dark>
+    <v-app-bar app  dark>
       <div class="d-flex align-center">
-        <v-img alt="Vuetify Logo" class="shrink mr-2" contain
-          src="https://cdn.vuetifyjs.com/images/logos/vuetify-logo-dark.png" transition="scale-transition" width="40" />
-
-        <v-img alt="Vuetify Name" class="shrink mt-1 hidden-sm-and-down" contain min-width="100"
-          src="https://cdn.vuetifyjs.com/images/logos/vuetify-name-dark.png" width="100" />
+        <h1 class="d1">RDVApp</h1>
       </div>
 
       <v-spacer></v-spacer>
-
-      <v-btn href="https://github.com/vuetifyjs/vuetify/releases/latest" target="_blank" text>
-        <span class="mr-2">Latest Release</span>
-        <v-icon>mdi-open-in-new</v-icon>
-      </v-btn>
     </v-app-bar>
     <navigationDrawer v-bind:items="items" @selectView="printView($event)"></navigationDrawer>
     <v-content>
-      <component :is="currentView" @accessStorage="accessStorage($event)" />
-      <snackbar @updatesnackbar="updatesnackbar($event)" :snackbar="snackbar" :text="snackbarText" :timeout="timeout">
-      </snackbar>
+      <keep-alive>
+        <component :is="currentView" :data="Patients" :headers="headers" @accessStorage="accessStorage($event)" />
+      </keep-alive>
+      <snackbar
+        @updatesnackbar="updatesnackbar($event)"
+        :snackbar="snackbar"
+        :text="snackbarText"
+        :timeout="timeout"
+      ></snackbar>
     </v-content>
   </v-app>
 </template>
 
 <script>
-    import HelloWorld from './components/HelloWorld';
-    import navigationDrawer from './components/navigationDrawer'
-    import snackbar from './components/snackbar'
-    import addRDV from './views/addRDV'
-    import searchRDV from './views/searchRDV'
-    import {
-        AppDAO,
-        Patient,
-        RENDEZVS
-    } from './dao'
+import HelloWorld from "./components/HelloWorld";
+import navigationDrawer from "./components/navigationDrawer";
+import snackbar from "./components/snackbar";
+import addRDV from "./views/addRDV";
+import searchRDV from "./views/searchRDV";
+import Dashboard from "./views/Dashboard";
+import { app } from "electron";
 
-    export default {
-        name: 'App',
+import { AppDAO, Patient, RENDEZVS } from "./dao";
+let db;
+export default {
+  name: "App",
 
-        components: {
-            HelloWorld,
-            navigationDrawer,
-            snackbar,
-            addRDV,
-            searchRDV
-        },
+  components: {
+    HelloWorld,
+    navigationDrawer,
+    snackbar,
+    addRDV,
+    searchRDV,
+    Dashboard
+  },
 
-        data: () => ({
-            items: [{
-                title: 'Dashboard',
-                icon: 'mdi-view-dashboard',
-                view: 'HelloWorld'
-            }, {
-                title: 'add an appointment',
-                icon: 'mdi-image',
-                view: 'addRDV'
-            }, {
-                title: 'search for an apintement',
-                icon: 'mdi-search',
-                view: 'searchRDV'
-            }, ],
-            currentView: "HelloWorld",
-            snackbar: false,
-            snackbarText: 'My timeout is set to 2000.',
-            timeout: 2000
+  data: () => ({
+    items: [
+      {
+        title: "Dashboard",
+        icon: "mdi-view-dashboard",
+        view: "Dashboard"
+      },
+      {
+        title: "add an appointment",
+        icon: "mdi-image",
+        view: "addRDV"
+      },
+      {
+        title: "search for an apintement",
+        icon: "mdi-search",
+        view: "searchRDV"
+      }
+    ],
+    currentView: "addRDV",
+    snackbar: false,
+    snackbarText: "My timeout is set to 2000.",
+    timeout: 2000,
+    Patients: [],
+    headers: [
+      { text: "Nom", value: "Nom" },
+      { text: "Prenom", value: "Prenom" },
+      { text: "Addresse", value: "Addresse" },
+      { text: "Tel", value: "Tel" },
+      { text: "Mail", value: "Mail" },
+      { text: "InfoMed", value: "InfoMed" }
+    ]
+  }),
+  methods: {
+    printView: function(tab) {
+      this.currentView = tab.view;
+    },
+    updatesnackbar: function(text) {
+      this.snackbarText = text;
+      this.snackbar = true;
+      return this.snackbar;
+    },
+    fetchObjectsById() {
+      return false;
+    },
+    accessStorage(event) {
+      switch (event.type) {
+        case "add":
+          console.log("add event", event);
+          event.data.forEach(element => {
+            db.insert(element).then(function name(e) {
+              {
+                //console.log("addedd successfully");
+                console.log(global.App.updatesnackbar('Added successfully'));
+              }
+            });
+          });
+          
 
-        }),
-        methods: {
-            printView: function(tab) {
-                console.log(this);
-                this.currentView = tab.view;
-                this.snackbar = false;
-                this.snackbar = true;
+          break;
+        case "search":
+          console.log("search event", event);
 
-
-            },
-            updatesnackbar: function(value) {
-                this.snackbar = value;
-            },
-            accessStorage(event) {
-                switch (event.type) {
-                    case 'add':
-
-                        console.log('add event', event);
-
-
-                        break;
-                    case 'search':
-
-                        console.log('search event', event);
-
-                        break;
-                    default:
-
-                        break;
-
-
-                }
-            }
-        }
-    };
+          break;
+        default:
+          break;
+      }
+    }
+  },
+  mounted: function() {
+    db = new AppDAO("./rdv.db");
+    global.App = this;
+    db.getAllPatients().then(function(a) {
+            global.App.updatesnackbar("Data Fetched Successfully!!");
+            a.forEach(element => {
+              global.App.Patients.push(element);
+            });
+          });
+  },
+  beforeDestroy: function() {
+    db.closeConnec();
+  }
+};
 </script>
