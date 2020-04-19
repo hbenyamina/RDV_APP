@@ -52,6 +52,7 @@ class AppDAO {
                         reject(err.message);
                     } else {
                         resolve('Le Patient a �t� ajout� avec succ�s');
+                        return 'Patient';
                     }
                 });
             });
@@ -64,6 +65,7 @@ class AppDAO {
                         reject(err.message);
                     } else {
                         resolve('Le RDV a �t� ajout� avec succ�s');
+                        return 'Rendez-vous';
                     }
                 });
             });

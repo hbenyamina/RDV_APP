@@ -9,13 +9,14 @@
     </v-app-bar>
     <navigationDrawer v-bind:items="items" @selectView="printView($event)"></navigationDrawer>
     <v-content>
+      <v-subheader>{{currentTabName}}</v-subheader>
       <keep-alive>
         <component :is="currentView" :data="Patients" :headers="headers" @accessStorage="accessStorage($event)" />
       </keep-alive>
       <snackbar
-        @updatesnackbar="updatesnackbar($event)"
+        @clearsnackbar="snackbarText=[];snackbar=false;"
         :snackbar="snackbar"
-        :text="snackbarText"
+        :events="snackbarText"
         :timeout="timeout"
       ></snackbar>
     </v-content>
@@ -59,14 +60,15 @@ export default {
         view: "addRDV"
       },
       {
-        title: "search for an apintement",
+        title: "search for an appointement",
         icon: "mdi-lookup",
         view: "searchRDV"
       }
     ],
-    currentView: "addRDV",
+    currentView: "Dashboard",
+    currentTabName:"Dashboard",
     snackbar: false,
-    snackbarText: "My timeout is set to 2000.",
+    snackbarText: [],
     timeout: 2000,
     Patients: [],
     headers: [
@@ -81,10 +83,11 @@ export default {
   methods: {
     printView: function(tab) {
       this.currentView = tab.view;
+      this.currentTabName=tab.title;
       if(tab.fetch)  this.dataSync();
     },
-    updatesnackbar: function(value, text) {
-      this.snackbarText = text;
+    updatesnackbar: function(value, text,type="primary") {
+      this.snackbarText.push({type:type,text:text});
       this.snackbar = value;
       return this.snackbar;
     },
@@ -104,9 +107,13 @@ export default {
       switch (event.type) {
         case "add":
           event.data.forEach(element => {
-            db.insert(element).then(function name(e) {
+            db.insert(element).catch(function name(e) {
               {
-                global.App.updatesnackbar(true,'Added successfully');
+                global.App.updatesnackbar(true,e);
+              }
+            }).then(function name(e) {
+              {
+                global.App.updatesnackbar(true,e);
               }
             });
           });
