@@ -103,7 +103,6 @@ export default {
     accessStorage(event) {
       switch (event.type) {
         case "add":
-          console.log("add event", event);
           event.data.forEach(element => {
             db.insert(element).then(function name(e) {
               {
