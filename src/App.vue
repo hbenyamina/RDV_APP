@@ -54,12 +54,12 @@ export default {
       },
       {
         title: "add an appointment",
-        icon: "mdi-image",
+        icon: "mdi-more",
         view: "addRDV"
       },
       {
         title: "search for an apintement",
-        icon: "mdi-search",
+        icon: "mdi-lookup",
         view: "searchRDV"
       }
     ],
@@ -115,9 +115,14 @@ export default {
   },
   mounted: function() {
     db = new AppDAO("./rdv.db");
+    db.getRdvAujourd().then(e => {
+    console.log(e);
+});
     global.App = this;
     db.getAllPatients().then(function(a) {
             global.App.updatesnackbar("Data Fetched Successfully!!");
+            console.log(a);
+            
             a.forEach(element => {
               global.App.Patients.push(element);
             });

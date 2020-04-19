@@ -45,7 +45,7 @@ class AppDAO {
     insert(element) {
 
         if (element instanceof Patient) {
-            const sql = 'INSERT INTO PATIENT(Nom,Prenom,Addresse,Tel,Mail,Infomed) VALUES(?,?,?,?,?,?);';
+            const sql = 'INSERT INTO Patient(Nom,Prenom,Addresse,Tel,Mail,Infomed) VALUES(?,?,?,?,?,?);';
             return new Promise((resolve, reject) => {
                 this.db.run(sql, [element.Nom, element.Prenom, element.Addresse, element.Tel, element.Mail, element.InfoMed], (err) => {
                     if (err) {
@@ -57,7 +57,7 @@ class AppDAO {
             });
 
         } else if (element instanceof RENDEZVS) {
-            const sql = 'INSERT INTO RENDEZVS(IDPAT,DateHeure,Objet) VALUES(?,?,?);';
+            const sql = 'INSERT INTO RendezVS(IDPAT,DateHeure,Objet) VALUES(?,?,?);';
             return new Promise((resolve, reject) => {
                 this.db.run(sql, [element.IDPat, element.DateHeure, element.Objet], (err) => {
                     if (err) {
@@ -223,6 +223,8 @@ class AppDAO {
     }
 
     closeConnec() {
+        console.log("trying to close the connection");
+
         this.db.close((err) => {
             if (err) {
                 console.error(err.message);
@@ -243,7 +245,9 @@ module.exports = {
 
 // let db = new AppDAO("./rdv.db");
 // let res;
-// res = db.getRdvAujourd().then(e => { return e; }); // Use it like this ,the e changes from function to function ,it can be a msg or a list of objects
+// res = db.getRdvAujourd().then(e => {
+//     console.log(e);
+// }); // Use it like this ,the e changes from function to function ,it can be a msg or a list of objects
 // console.log(res);
 // db.closeConnec();
 
