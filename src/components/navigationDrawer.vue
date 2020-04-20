@@ -8,7 +8,7 @@
         >
         <v-list-item link v-on:click="minivariant = !minivariant">
             <v-list-item-icon>
-                <v-icon>mdi-expand</v-icon>
+                <v-icon>expand</v-icon>
               </v-list-item-icon>
     
               <v-list-item-content>

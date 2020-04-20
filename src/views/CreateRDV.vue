@@ -20,15 +20,6 @@
             required
             clearable
           ></v-text-field>
-          <v-text-field v-model="address" :rules="addressRules" label="Adress" required clearable></v-text-field>
-          <v-text-field v-model="phone" :rules="phoneRules" label="phone" clearable></v-text-field>
-          <v-text-field v-model="email" :rules="emailRules" label="E-mail" clearable></v-text-field>
-          <v-textarea
-            v-model="medical_info"
-            :rules="medical_info_Rules"
-            label="Medical Info"
-            clearable
-          ></v-textarea>
         </v-col>
 
         <v-col md6 sm12>
@@ -127,10 +118,8 @@ export default {
   methods: {
     validate() {
       //if (this.$refs.form.validate())
-      var ID=Date.now();
       if (true)
         this.$emit("accessStorage", {
-          
           type: "add",
           data: [
             new Patient(
@@ -139,10 +128,9 @@ export default {
               this.address,
               this.phone,
               this.email,
-              this.medical_info,
-              ID
+              this.medical_info
             ),
-            new RENDEZVS(ID,this.datePicker + "T" + this.timePicker, this.objet)
+            new RENDEZVS(this.datePicker + "T" + this.timePicker, this.objet)
           ]
         });
       console.log(new Date().toISOString());

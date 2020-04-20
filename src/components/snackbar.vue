@@ -1,12 +1,12 @@
 <template>
   <div class="text-center">
-    <v-snackbar right v-model="showsnackbar" :timeout="0">
-      <v-card>
-        <v-list-item  v-for="(event,index) in events" :key="index">
-          <v-list-item-content :color="event.type">{{event.text}}</v-list-item-content>
+    <v-snackbar multi-line right v-model="showsnackbar" :timeout="0">
+      <v-content>
+        <v-list-item v-for="(event,index) in events" :key="index">
+          <v-list-item-content :class="event.type+'--text'"  >{{event.text}}</v-list-item-content>
         </v-list-item>
-      </v-card>
-      <v-btn color="blue" text @click="updatesnackbar(false)">clear</v-btn>
+        <v-btn text color="blue" @click="updatesnackbar(false)">clear</v-btn>
+      </v-content>
     </v-snackbar>
   </div>
 </template>

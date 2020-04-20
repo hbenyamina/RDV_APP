@@ -1,6 +1,6 @@
 <template>
   <v-app>
-    <v-app-bar app  dark>
+    <v-app-bar app dark>
       <div class="d-flex align-center">
         <h1 class="d1">RDVApp</h1>
       </div>
@@ -11,7 +11,14 @@
     <v-content>
       <v-subheader>{{currentTabName}}</v-subheader>
       <keep-alive>
-        <component :is="currentView" :data="Patients" :headers="headers" @accessStorage="accessStorage($event)" />
+        <component
+          :is="currentView"
+          :data="dashboardData[0].RDVs"
+          :filteredData="filteredData"
+          :headers="dashboardData[0].RDVs_headers"
+          @updateDashboard="dataSync($event)"
+          @accessStorage="accessStorage($event)"
+        />
       </keep-alive>
       <snackbar
         @clearsnackbar="snackbarText=[];snackbar=false;"
@@ -24,7 +31,6 @@
 </template>
 
 <script>
-import HelloWorld from "./components/HelloWorld";
 import navigationDrawer from "./components/navigationDrawer";
 import snackbar from "./components/snackbar";
 import addRDV from "./views/addRDV";
@@ -38,7 +44,6 @@ export default {
   name: "App",
 
   components: {
-    HelloWorld,
     navigationDrawer,
     snackbar,
     addRDV,
@@ -52,7 +57,7 @@ export default {
         title: "Dashboard",
         icon: "mdi-view-dashboard",
         view: "Dashboard",
-        fetch: true
+        overview: true
       },
       {
         title: "add an appointment",
@@ -61,68 +66,140 @@ export default {
       },
       {
         title: "search for an appointement",
-        icon: "mdi-lookup",
+        icon: "search",
         view: "searchRDV"
       }
     ],
-    currentView: "Dashboard",
-    currentTabName:"Dashboard",
+    currentView: "searchRDV",
+    currentTabName: "searchRDV",
+    filteredData:[],
     snackbar: false,
     snackbarText: [],
     timeout: 2000,
-    Patients: [],
-    headers: [
-      { text: "Nom", value: "Nom" },
-      { text: "Prenom", value: "Prenom" },
-      { text: "Addresse", value: "Addresse" },
-      { text: "Tel", value: "Tel" },
-      { text: "Mail", value: "Mail" },
-      { text: "InfoMed", value: "InfoMed" }
+    dashboardData: [
+      {
+        RDVs: [],
+        RDVs_headers: [
+          { text: "Date of the RDV", value: "DateHeure" },
+          { text: "L'objet", value: "Objet" }
+        ]
+      },
+      {
+        Patients: [],
+        headers: [
+          { text: "Nom", value: "Nom" },
+          { text: "Prenom", value: "Prenom" },
+          { text: "Addresse", value: "Addresse" },
+          { text: "Tel", value: "Tel" },
+          { text: "Mail", value: "Mail" },
+          { text: "InfoMed", value: "InfoMed" }
+        ]
+      }
     ]
   }),
   methods: {
     printView: function(tab) {
       this.currentView = tab.view;
-      this.currentTabName=tab.title;
-      if(tab.fetch)  this.dataSync();
+      this.currentTabName = tab.title;
+      if (tab.overview) this.dataSync();
     },
-    updatesnackbar: function(value, text,type="primary") {
-      this.snackbarText.push({type:type,text:text});
+    updatesnackbar: function(value, text, type = "success") {
+      this.snackbarText.push({ type: type, text: text });
       this.snackbar = value;
       return this.snackbar;
     },
-    fetchObjectsById() {
-      return false;
-    },
-    dataSync(){
-          db.getAllPatients().then(function(a) {
-            global.App.updatesnackbar(true,"Data Fetched Successfully!!");
-            global.App.Patients = []
-            a.forEach(element => {
-              global.App.Patients.push(element);
-            });
+    dataSync(date = null) {
+      if (date == null) {
+        db.getRdvAujourd().then(function(a) {
+          global.App.updatesnackbar(true, "Data Fetched Successfully!!");
+          global.App.dashboardData[0].RDVs = [];
+          a.forEach(element => {
+            global.App.dashboardData[0].RDVs.push({DateHeure:element.DateHeure.toISOString().substr(0, 10),Objet:element.Objet});
           });
+        });
+      }
+      else{
+        db.getRdvJour(date).then(function(a) {
+          console.log(a);
+          
+          global.App.updatesnackbar(true, "Data Fetched Successfully!!");
+          global.App.dashboardData[0].RDVs = [];;
+          a.forEach(element => {
+            global.App.dashboardData[0].RDVs.push({DateHeure:element.DateHeure.substr(0, 10),Objet:element.Objet});
+          });
+          console.log(global.App.dashboardData);
+          
+        });
+        
+      }
     },
     accessStorage(event) {
       switch (event.type) {
         case "add":
           event.data.forEach(element => {
-            db.insert(element).catch(function name(e) {
-              {
-                global.App.updatesnackbar(true,e);
-              }
-            }).then(function name(e) {
-              {
-                global.App.updatesnackbar(true,e);
-              }
-            });
+            db.insert(element)
+              .catch(function name(e) {
+                {
+                  global.App.updatesnackbar(true, e, "error");
+                }
+              })
+              .then(function name(e) {
+                {
+                  global.App.updatesnackbar(true, e, "success");
+                }
+              });
           });
-          
 
           break;
         case "search":
-          console.log("search event", event);
+          event.data.forEach(element => {
+            db.getRendezVSByNomPrenom(element.Nom,element.Prenom)
+              .catch(function name(e) {
+                {
+                  global.App.updatesnackbar(true, e, "error");
+                }
+              })
+              .then(function name(e) {
+                {
+                  global.App.filteredData=e;
+                  global.App.updatesnackbar(true, "Data fetched successfuly", "success");
+                }
+              });
+          });
 
+          break;
+          case "update":
+          event.data.forEach(element => {
+            db.update(element)
+              .catch(function name(e) {
+                {
+                  global.App.updatesnackbar(true, e, "error");
+                }
+              })
+              .then(function name(e) {
+                {
+                  global.App.filteredData=e;
+                  global.App.updatesnackbar(true, "Updated successfully", "success");
+                }
+              });
+          });
+
+          break;
+          case "delete":
+          event.data.forEach(element => {
+            db.delete(element)
+              .catch(function name(e) {
+                {
+                  global.App.updatesnackbar(true, e, "error");
+                }
+              })
+              .then(function name(e) {
+                {
+                  global.App.filteredData=e;
+                  global.App.updatesnackbar(true, "Deleted successfully", "success");
+                }
+              });
+          });
           break;
         default:
           break;

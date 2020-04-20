@@ -45,9 +45,9 @@ class AppDAO {
     insert(element) {
 
         if (element instanceof Patient) {
-            const sql = 'INSERT INTO Patient(Nom,Prenom,Addresse,Tel,Mail,Infomed) VALUES(?,?,?,?,?,?);';
+            const sql = 'INSERT INTO Patient(ID,Nom,Prenom,Addresse,Tel,Mail,Infomed) VALUES(?,?,?,?,?,?,?);';
             return new Promise((resolve, reject) => {
-                this.db.run(sql, [element.Nom, element.Prenom, element.Addresse, element.Tel, element.Mail, element.InfoMed], (err) => {
+                this.db.run(sql, [element.ID, element.Nom, element.Prenom, element.Addresse, element.Tel, element.Mail, element.InfoMed], (err) => {
                     if (err) {
                         reject(err.message);
                     } else {
@@ -156,38 +156,19 @@ class AppDAO {
 
     }
 
-    getPatientByNom(Nom) { //Returns a list of patient instances.
-        const sql = "SELECT * FROM Patient WHERE Nom = ?";
+    getRendezVSByNomPrenom(Nom, Prenom) { //Returns a list of patient instances.
+        const sql = "SELECT RendezVS.* ,substr(DateHeure,0,11) as Date FROM RendezVS join Patient on RendezVS.IDPAT = Patient.ID WHERE Patient.Nom = ? and Patient.Prenom= ?";
         return new Promise((resolve, reject) => {
-            this.db.all(sql, [Nom], (err, rows) => {
+            this.db.all(sql, [Nom, Prenom], (err, rows) => {
 
                 if (err) {
                     reject(err.message);
                 } else {
                     let listpatient = [];
-                    rows.forEach(e => {
-                        listpatient.push(new Patient(res.Nom, res.Prenom, res.Addresse, res.Tel, res.Mail, res.Infomed, res.ID));
-                    });
+                    console.log(rows);
 
-                    resolve(listpatient);
-                }
-
-            });
-        });
-
-    }
-
-    getPatientByPrenom(Prenom) { //Returns a list of patient instances.
-        const sql = "SELECT * FROM Patient WHERE Prenom = ?";
-        return new Promise((resolve, reject) => {
-            this.db.all(sql, [Prenom], (err, rows) => {
-
-                if (err) {
-                    reject(err.message);
-                } else {
-                    let listpatient = [];
-                    rows.forEach(e => {
-                        listpatient.push(new Patient(res.Nom, res.Prenom, res.Addresse, res.Tel, res.Mail, res.Infomed, res.ID));
+                    rows.forEach(res => {
+                        listpatient.push(new RENDEZVS(res.IDPAT, res.Date, res.Objet, res.ID));
                     });
 
                     resolve(listpatient);
@@ -298,14 +279,14 @@ class AppDAO {
 
 class Imprimante {
     constructor(dbInstance) {
-        this.db = dbInstance; 
+        this.db = dbInstance;
     }
 
-    imprimer(path,rdvID) {
+    imprimer(path, rdvID) {
 
         db.getRdvInfoByID(rdvID).then(e => {
             let dateHeure = e.DateHeure.split(' ')
-            let text =`***************Cabinet Medical Echifaa***************
+            let text = `***************Cabinet Medical Echifaa***************
             \rRendez-Vous :
 
             \rLe : ${dateHeure[0]} a\u0300 ${dateHeure[1]}
@@ -321,7 +302,7 @@ class Imprimante {
                     return "Erreur lors de l'impression du Rendez-Vous"
                 }
             });
-            
+
         });
     }
 }
