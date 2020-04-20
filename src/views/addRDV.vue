@@ -4,7 +4,6 @@
       <v-layout>
         <v-col md6 sm12>
           <v-subheader>Patient information</v-subheader>
-          <v-btn-toggle v-model="addorSearch" >Add</v-btn-toggle>
           <v-text-field
             v-model="name"
             :counter="10"

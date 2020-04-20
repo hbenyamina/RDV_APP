@@ -229,7 +229,7 @@ export default {
     }
   },
   mounted: function() {
-    db = new AppDAO("./src/rdv.db");
+    db = new AppDAO("./db/rdv.db");
     global.App = this;
     this.dataSync();
   },

@@ -5,16 +5,16 @@
     "scripts": {
         "serve": "vue-cli-service serve",
         "build": "vue-cli-service build",
-        "electron:build": "vue-cli-service electron:build",
+        "electron:build": "vue-cli-service electron:build --win",
         "electron:serve": "vue-cli-service electron:serve",
         "postinstall": "electron-builder install-app-deps",
+        "windows": "electron-builder --win install-app-deps",
+        "mac": "electron-builder install-app-deps --mac",
         "postuninstall": "electron-builder install-app-deps"
     },
     "main": "background.js",
     "dependencies": {
         "bluebird": "^3.7.2",
-        "electron": "^8.2.3",
-        "electron-rebuild": "^1.10.1",
         "sqlite3": "^4.1.1",
         "vue": "^2.6.11",
         "vue-electron": "^1.0.6",
@@ -22,6 +22,7 @@
         "vuetify": "^2.2.11"
     },
     "devDependencies": {
+        "electron-rebuild": "^1.10.1",
         "@mdi/font": "^5.1.45",
         "@vue/cli-plugin-router": "~4.3.0",
         "@vue/cli-service": "~4.3.0",
