@@ -82,7 +82,7 @@ export default {
       {
         RDVs: [],
         RDVs_headers: [
-          { text: "Date of the RDV", value: "DateHeure" },
+          { text: "Date of the RDV", value: "DateHeure",type:'Date'},
           { text: "L'objet", value: "Objet" }
         ]
       },

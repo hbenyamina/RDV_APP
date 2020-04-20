@@ -47,11 +47,20 @@
         <v-icon>mdi-close</v-icon>Close
       </v-btn>
       <v-container>
-        <v-card class="ma-4 pa-4">
+        <v-card class="white--text ma-4 pa-4">
           <v-subheader>Modifier</v-subheader>
           <v-container v-for="(header,index) in headers" :key="index">
-            <v-label class="white--text">{{header.text}}:</v-label>
-            <v-text-field v-model="selectedItem[header.value]" class="black"></v-text-field>
+            <span style="color: white" class="white--text">{{header.text}}:</span>
+            <v-text-field
+              v-show="header.type == null ||  header.type!='Date'"
+              v-model="selectedItem[header.value]"
+              class="black"
+            ></v-text-field>
+            <v-chip-group>
+              <v-chip v-show="header.type=='Date'">{{selectedDate}}</v-chip>
+              <v-chip v-show="header.type=='Date'">{{selectedTime}}</v-chip>
+            </v-chip-group>
+            <v-btn v-show="header.type=='Date'" class="primary">Modifier Date et Heure</v-btn>
           </v-container>
           <v-card-actions>
             <v-btn @click="modifier(selectedItem)" class="primary">
@@ -61,14 +70,14 @@
           <v-divider></v-divider>
           <v-subheader>Supprimer</v-subheader>
           <v-card-actions>
-            <v-btn @click="supprimer(selectedItem)"  class="primary">
+            <v-btn @click="supprimer(selectedItem)" class="primary">
               <v-icon>undone</v-icon>Supprimer
             </v-btn>
           </v-card-actions>
           <v-divider></v-divider>
           <v-subheader>Imprimer</v-subheader>
           <v-card-actions>
-            <v-btn @click="print(selectedItem)"  class="primary">
+            <v-btn @click="print(selectedItem)" class="primary">
               <v-icon>print</v-icon>Imprimer
             </v-btn>
           </v-card-actions>
@@ -81,9 +90,11 @@
 import { Patient, RENDEZVS } from "./../dao";
 
 export default {
-  props: ["headers", "filteredData","peopleConcerned"],
+  props: ["headers", "filteredData", "peopleConcerned"],
   data: () => ({
     selectedItem: {},
+    selectedDate: new Date().toISOString().substr(0, 10),
+    selectedTime: new Date().toISOString().substr(11, 5),
     overlayMenu: false,
     valid: true,
     name: "foo",
@@ -115,37 +126,33 @@ export default {
     overlayMenuOptions: function(event) {
       if (!!event) this.overlayMenu = true;
       this.selectedItem = event;
-      (this.overlayMenu);
-      (event);
+      this.overlayMenu;
+      event;
     },
-    modifier(item){
-      
+    modifier(item) {
       this.$emit("accessStorage", {
-          type: "update",
-          data: [item]
-        });
-        this.validate();
-        this.overlayMenu=false;
-    }
-    ,
-    supprimer(item){
-      
-      this.$emit("accessStorage", {
-          type: "delete",
-          data: [item]
-        });
-        this.validate();
-        this.overlayMenu=false;
+        type: "update",
+        data: [item]
+      });
+      this.validate();
+      this.overlayMenu = false;
     },
-    
-    print(item){
-      
+    supprimer(item) {
       this.$emit("accessStorage", {
-          type: "print",
-          data: [item]
-        });
-        this.validate();
-        this.overlayMenu=false;
+        type: "delete",
+        data: [item]
+      });
+      this.validate();
+      this.overlayMenu = false;
+    },
+
+    print(item) {
+      this.$emit("accessStorage", {
+        type: "print",
+        data: [item]
+      });
+      this.validate();
+      this.overlayMenu = false;
     }
   }
 };
