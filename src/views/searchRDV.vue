@@ -51,11 +51,8 @@
           <v-subheader>Modifier</v-subheader>
           <v-container v-for="(header,index) in headers" :key="index">
             <span style="color: white" class="white--text">{{header.text}}:</span>
-            <v-text-field
-              v-show="header.type == null ||  header.type!='Date'"
-              v-model="selectedItem[header.value]"
-              class="black"
-            ></v-text-field>
+            <!-- v-show="header.type == null ||  header.type!='Date'" -->
+            <v-text-field v-model="selectedItem[header.value]" class="black"></v-text-field>
             <v-chip-group>
               <v-chip v-show="header.type=='Date'">{{selectedDate}}</v-chip>
               <v-chip v-show="header.type=='Date'">{{selectedTime}}</v-chip>

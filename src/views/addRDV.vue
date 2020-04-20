@@ -4,6 +4,7 @@
       <v-layout>
         <v-col md6 sm12>
           <v-subheader>Patient information</v-subheader>
+          <v-btn-toggle v-model="addorSearch" >Add</v-btn-toggle>
           <v-text-field
             v-model="name"
             :counter="10"
@@ -58,11 +59,11 @@
        
       </v-layout>
        <v-row md12>
-          <v-btn :disabled="!valid" color="success" class="mr-4" @click="validate">Validate</v-btn>
+          <v-btn :disabled="!valid" color="success" class="mr-4" @click="validate">Add</v-btn>
 
           <v-btn color="error" class="mr-4" @click="reset">Reset Form</v-btn>
 
-          <v-btn color="warning" @click="resetValidation">Reset Validation</v-btn>
+          <v-btn color="warning" @click="search">Search</v-btn>
         </v-row>
     </v-form>
   </v-content>
@@ -74,6 +75,7 @@ import { Patient, RENDEZVS } from "./../dao.js";
 
 export default {
   data: () => ({
+    addOrSearch:true,
     valid: true,
     datePicker: new Date().toISOString().substr(0, 10),
     timePicker: new Date().toISOString().substr(11, 5),
