@@ -8,8 +8,8 @@
         "electron:build": "vue-cli-service electron:build --win",
         "electron:serve": "vue-cli-service electron:serve",
         "postinstall": "electron-builder install-app-deps",
-        "windows": "electron-builder --win install-app-deps",
-        "mac": "electron-builder install-app-deps --mac",
+        "windows": "electron-builder --win .",
+        "mac": "electron-builder --mac .",
         "postuninstall": "electron-builder install-app-deps"
     },
     "main": "background.js",
