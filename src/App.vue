@@ -15,6 +15,7 @@
           :is="currentView"
           :data="dashboardData[0].RDVs"
           :filteredData="filteredData"
+          :peopleConcerned="peopleConcerned"
           :headers="dashboardData[0].RDVs_headers"
           @updateDashboard="dataSync($event)"
           @accessStorage="accessStorage($event)"
@@ -38,7 +39,7 @@ import searchRDV from "./views/searchRDV";
 import Dashboard from "./views/Dashboard";
 import { app } from "electron";
 
-import { AppDAO, Patient, RENDEZVS } from "./dao";
+import { AppDAO, Patient, RENDEZVS, Imprimante } from "./dao";
 let db;
 export default {
   name: "App",
@@ -72,9 +73,10 @@ export default {
     ],
     currentView: "searchRDV",
     currentTabName: "searchRDV",
-    filteredData:[],
+    filteredData: [],
     snackbar: false,
     snackbarText: [],
+    peopleConcerned: [],
     timeout: 2000,
     dashboardData: [
       {
@@ -114,23 +116,26 @@ export default {
           global.App.updatesnackbar(true, "Data Fetched Successfully!!");
           global.App.dashboardData[0].RDVs = [];
           a.forEach(element => {
-            global.App.dashboardData[0].RDVs.push({DateHeure:element.DateHeure.toISOString().substr(0, 10),Objet:element.Objet});
+            global.App.dashboardData[0].RDVs.push({
+              DateHeure: element.DateHeure.toISOString().substr(0, 10),
+              Objet: element.Objet
+            });
           });
         });
-      }
-      else{
+      } else {
         db.getRdvJour(date).then(function(a) {
-          console.log(a);
-          
+          (a);
+
           global.App.updatesnackbar(true, "Data Fetched Successfully!!");
-          global.App.dashboardData[0].RDVs = [];;
+          global.App.dashboardData[0].RDVs = [];
           a.forEach(element => {
-            global.App.dashboardData[0].RDVs.push({DateHeure:element.DateHeure.substr(0, 10),Objet:element.Objet});
+            global.App.dashboardData[0].RDVs.push({
+              DateHeure: element.DateHeure.substr(0, 10),
+              Objet: element.Objet
+            });
           });
-          console.log(global.App.dashboardData);
-          
+          (global.App.dashboardData);
         });
-        
       }
     },
     accessStorage(event) {
@@ -153,7 +158,7 @@ export default {
           break;
         case "search":
           event.data.forEach(element => {
-            db.getRendezVSByNomPrenom(element.Nom,element.Prenom)
+            db.getRendezVSByNomPrenom(element.Nom, element.Prenom)
               .catch(function name(e) {
                 {
                   global.App.updatesnackbar(true, e, "error");
@@ -161,14 +166,19 @@ export default {
               })
               .then(function name(e) {
                 {
-                  global.App.filteredData=e;
-                  global.App.updatesnackbar(true, "Data fetched successfuly", "success");
+                  global.App.filteredData = e.RDV;
+                  global.App.peopleConcerned = e.Patients;
+                  global.App.updatesnackbar(
+                    true,
+                    "Data fetched successfuly",
+                    "success"
+                  );
                 }
               });
           });
 
           break;
-          case "update":
+        case "update":
           event.data.forEach(element => {
             db.update(element)
               .catch(function name(e) {
@@ -178,16 +188,21 @@ export default {
               })
               .then(function name(e) {
                 {
-                  global.App.filteredData=e;
-                  global.App.updatesnackbar(true, "Updated successfully", "success");
+                  (e);
+
+                  global.App.updatesnackbar(
+                    true,
+                    "Updated successfully",
+                    "success"
+                  );
                 }
               });
           });
 
           break;
-          case "delete":
+        case "delete":
           event.data.forEach(element => {
-            db.delete(element)
+            db.delete(element.ID)
               .catch(function name(e) {
                 {
                   global.App.updatesnackbar(true, e, "error");
@@ -195,10 +210,17 @@ export default {
               })
               .then(function name(e) {
                 {
-                  global.App.filteredData=e;
-                  global.App.updatesnackbar(true, "Deleted successfully", "success");
+                  global.App.updatesnackbar(true, e, "success");
                 }
               });
+          });
+          break;
+        case "print":
+          var database = db;
+          var printer = new Imprimante(database);
+          event.data.forEach(element => {
+            printer.imprimer("file.txt", element.ID);
+            global.App.updatesnackbar(true, "success", "success");
           });
           break;
         default:

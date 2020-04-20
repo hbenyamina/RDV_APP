@@ -58,10 +58,18 @@
               <v-icon>done</v-icon>Modifier
             </v-btn>
           </v-card-actions>
+          <v-divider></v-divider>
           <v-subheader>Supprimer</v-subheader>
           <v-card-actions>
             <v-btn @click="supprimer(selectedItem)"  class="primary">
-              <v-icon>undone</v-icon>Suprimer
+              <v-icon>undone</v-icon>Supprimer
+            </v-btn>
+          </v-card-actions>
+          <v-divider></v-divider>
+          <v-subheader>Imprimer</v-subheader>
+          <v-card-actions>
+            <v-btn @click="print(selectedItem)"  class="primary">
+              <v-icon>print</v-icon>Imprimer
             </v-btn>
           </v-card-actions>
         </v-card>
@@ -73,7 +81,7 @@
 import { Patient, RENDEZVS } from "./../dao";
 
 export default {
-  props: ["headers", "filteredData"],
+  props: ["headers", "filteredData","peopleConcerned"],
   data: () => ({
     selectedItem: {},
     overlayMenu: false,
@@ -107,8 +115,8 @@ export default {
     overlayMenuOptions: function(event) {
       if (!!event) this.overlayMenu = true;
       this.selectedItem = event;
-      console.log(this.overlayMenu);
-      console.log(event);
+      (this.overlayMenu);
+      (event);
     },
     modifier(item){
       
@@ -124,6 +132,16 @@ export default {
       
       this.$emit("accessStorage", {
           type: "delete",
+          data: [item]
+        });
+        this.validate();
+        this.overlayMenu=false;
+    },
+    
+    print(item){
+      
+      this.$emit("accessStorage", {
+          type: "print",
           data: [item]
         });
         this.validate();

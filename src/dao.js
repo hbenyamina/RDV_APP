@@ -33,11 +33,11 @@ class AppDAO {
     constructor(dbFilePath) {
         this.db = new sqlite3.Database(dbFilePath, (err) => {
             if (err) {
-                console.log('Echec de la connexion a la base de donne\u0301es', err)
-                console.log(err);
+                ('Echec de la connexion a la base de donne\u0301es', err)
+                (err);
 
             } else {
-                console.log('Connecte\u0301 a la base de donne\u0301es')
+                ('Connecte\u0301 a la base de donne\u0301es')
             }
         })
     }
@@ -102,7 +102,6 @@ class AppDAO {
     }
 
     delete(ID) { // The function only removes Rendez-Vous
-
         return new Promise((resolve, reject) => {
             const sql = 'DELETE FROM RendezVS WHERE ID= ?';
 
@@ -157,21 +156,23 @@ class AppDAO {
     }
 
     getRendezVSByNomPrenom(Nom, Prenom) { //Returns a list of patient instances.
-        const sql = "SELECT RendezVS.* ,substr(DateHeure,0,11) as Date FROM RendezVS join Patient on RendezVS.IDPAT = Patient.ID WHERE Patient.Nom = ? and Patient.Prenom= ?";
+        const sql = "SELECT RendezVS.ID as RDVID,IDPAT, Objet,substr(DateHeure,0,11) as Date, Patient.*  FROM RendezVS join Patient on RendezVS.IDPAT = Patient.ID WHERE Patient.Nom = ? and Patient.Prenom= ?";
         return new Promise((resolve, reject) => {
             this.db.all(sql, [Nom, Prenom], (err, rows) => {
 
                 if (err) {
                     reject(err.message);
                 } else {
+                    let listrdv = [];
                     let listpatient = [];
-                    console.log(rows);
+                    (rows);
 
                     rows.forEach(res => {
-                        listpatient.push(new RENDEZVS(res.IDPAT, res.Date, res.Objet, res.ID));
+                        listpatient.push(new Patient(res.Nom, res.Prenom, res.Addresse, res.Tel, res.Mail, res.Infomed, res.ID));
+                        listrdv.push(new RENDEZVS(res.IDPAT, res.Date, res.Objet, res.RDVID));
                     });
 
-                    resolve(listpatient);
+                    resolve({ RDV: listrdv, Patient: listpatient });
                 }
 
             });
@@ -226,7 +227,7 @@ class AppDAO {
     getRdvAujourd() { // Returns the rendez-vous of today
         let today = new Date();
         let date = today.getDate() + '-' + (today.getMonth() + 1).toString().padStart(2, "0") + '-' + today.getFullYear() + '%';
-        console.log(date);
+        (date);
         const sql = 'SELECT * FROM RendezVS WHERE DateHeure LIKE ?';
         return new Promise((resolve, reject) => {
             this.db.all(sql, [date], (err, rows) => {
@@ -248,13 +249,16 @@ class AppDAO {
     }
 
     getRdvInfoByID(ID) {
-        const sql = 'SELECT DateHeure,Objet,Nom,Prenom FROM RENDEZVS AS r JOIN Patient as p ON r.ID = p.ID WHERE r.ID = ?';
+        ('id is ', ID);
+
+        const sql = 'SELECT r.ID,DateHeure,Objet,p.Nom,p.Prenom FROM RendezVS AS r JOIN Patient as p ON r.IDPAT = p.ID WHERE r.ID = ?';
         return new Promise((resolve, reject) => {
             this.db.get(sql, [ID], (err, result) => {
 
                 if (err) {
                     reject(err.message);
                 } else {
+                    ('results', result);
 
                     resolve(result);
                 }
@@ -264,13 +268,13 @@ class AppDAO {
     }
 
     closeConnec() {
-        console.log("trying to close the connection");
+        ("trying to close the connection");
 
         this.db.close((err) => {
             if (err) {
                 console.error(err.message);
             }
-            console.log('Connexion a la base de donn�es ferm�e.');
+            ('Connexion a la base de donn�es ferm�e.');
         });
     }
 
@@ -282,10 +286,13 @@ class Imprimante {
         this.db = dbInstance;
     }
 
-    imprimer(path, rdvID) {
+    imprimer(path = './file.txt', rdvID) {
 
-        db.getRdvInfoByID(rdvID).then(e => {
+        this.db.getRdvInfoByID(rdvID).then(e => {
+            ('data', e);
+
             let dateHeure = e.DateHeure.split(' ')
+            console.log('data format', e.DateHeure);
             let text = `***************Cabinet Medical Echifaa***************
             \rRendez-Vous :
 
@@ -302,8 +309,9 @@ class Imprimante {
                     return "Erreur lors de l'impression du Rendez-Vous"
                 }
             });
+        })
 
-        });
+
     }
 }
 

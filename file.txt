@@ -1,0 +1,11 @@
+***************Cabinet Medical Echifaa***************
+            Rendez-Vous :
+
+            Le : 2020-04-20T11:17 à undefined
+
+            Nom et prénom du concerné : foo bar
+
+            Objet : HelloWorld
+            
+            ***************Veuillez respecter les heures SVP******
+            
