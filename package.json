@@ -25,7 +25,7 @@
         "electron-rebuild": "^1.10.1",
         "@mdi/font": "^5.1.45",
         "@vue/cli-plugin-router": "~4.3.0",
-        "@vue/cli-service": "~4.3.0",
+        "@vue/cli-service": "~5.0.9",
         "electron": ">=7.2.4",
         "material-design-icons-iconfont": "^5.0.1",
         "sass": "^1.19.0",
